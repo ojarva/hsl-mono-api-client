@@ -45,8 +45,9 @@ class Fetcher(object):
                     lines[line]["departures"].append({"timestamp": departure["time"], "realtime": False})
 
         for k, v in lines.items():
-            sorted(v["departures"], key=lambda k: k["timestamp"])
+            v["departures"] = sorted(v["departures"], key=lambda k: k["timestamp"])
             all_departures.append(v)
+        all_departures = sorted(all_departures, key=lambda k: k["line"])
         return all_departures
 
     def run(self):
