@@ -18,3 +18,19 @@ STOPS = {
 }
 
 FETCHER_INTERVAL = 60
+
+LINE_MAPS = {
+    "6": "6(T)",
+    "6T": "6(T)",
+    "65A": "65A/66A",
+    "66A": "65A/66A",
+}
+
+LINE_DETAILS = {
+    "6(T)": {"minimum_time": 45, "type": "tram", "icon": "train"},
+    "65A/66A": {"minimum_time": 300, "type": "bus", "icon": "bus"},
+    "64": {"minimum_time": 360, "type": "bus", "icon": "bus"},
+    "Metro": {"minimum_time": 360, "type": "metro", "icon": "train"},
+    "7A": {"minimum_time": 45, "type": "tram", "icon": "train"},
+    "7B": {"minimum_time": 75, "type": "tram", "icon": "train"},
+}
