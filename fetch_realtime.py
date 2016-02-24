@@ -40,9 +40,11 @@ class Fetcher(object):
                 if line not in lines:
                     lines[line] = self.get_line_details(line)
                 if departure["rtime"] is not None:
-                    lines[line]["departures"].append({"timestamp": departure["rtime"], "realtime": True})
+                    data = {"timestamp": departure["rtime"], "realtime": True}
                 else:
-                    lines[line]["departures"].append({"timestamp": departure["time"], "realtime": False})
+                    data = {"timestamp": departure["time"], "realtime": False}
+                data["departure_id"] = departure["id"]
+                lines[line]["departures"].append(data)
 
         for k, v in lines.items():
             v["departures"] = sorted(v["departures"], key=lambda k: k["timestamp"])

@@ -27,10 +27,10 @@ LINE_MAPS = {
 }
 
 LINE_DETAILS = {
-    "6(T)": {"minimum_time": 45, "type": "tram", "icon": "train"},
-    "65A/66A": {"minimum_time": 300, "type": "bus", "icon": "bus"},
-    "64": {"minimum_time": 360, "type": "bus", "icon": "bus"},
-    "Metro": {"minimum_time": 360, "type": "metro", "icon": "train"},
-    "7A": {"minimum_time": 45, "type": "tram", "icon": "train"},
-    "7B": {"minimum_time": 75, "type": "tram", "icon": "train"},
+    "6(T)": {"minimum_time": 80, "type": "tram", "icon": "train"},
+    "65A/66A": {"minimum_time": 270, "type": "bus", "icon": "bus"},
+    "64": {"minimum_time": 315, "type": "bus", "icon": "bus"},
+    "Metro": {"minimum_time": 300, "type": "metro", "icon": "train"},
+    "7A": {"minimum_time": 80, "type": "tram", "icon": "train"},
+    "7B": {"minimum_time": 120, "type": "tram", "icon": "train"},
 }

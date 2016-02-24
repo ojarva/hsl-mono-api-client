@@ -3,10 +3,12 @@ from fetch_realtime import Fetcher
 from flask import Flask
 from flask_restful import Resource, Api
 from flask_restful_url_generator import UrlList
+from flask.ext.cors import CORS
 import os
 
 app = Flask("helmi-departures")
 api = Api(app)
+CORS(app)
 
 dd = DepartureData()
 fetcher = Fetcher()
@@ -39,7 +41,7 @@ api.add_resource(UrlList, "/", resource_class_kwargs={"api": api})
 
 
 def main():
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 5019))
     app.run(host='0.0.0.0', port=port, debug=True)
 
 
