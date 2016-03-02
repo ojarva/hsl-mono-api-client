@@ -8,6 +8,7 @@ import socket
 
 
 class Fetcher(object):
+
     def __init__(self):
         self.dd = DepartureData()
         self.redis = redis.StrictRedis()

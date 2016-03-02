@@ -16,6 +16,7 @@ fetcher = Fetcher()
 
 class RealtimeDepartures(Resource):
     """ Realtime departures for specified stop """
+
     def get(self, stop_id):
         departures = dd.realtime_departures(stop_id)
         return departures
@@ -23,6 +24,7 @@ class RealtimeDepartures(Resource):
 
 class LineStops(Resource):
     """ Returns next stops for specified departure. Fetch departure_id from /stop/<stop_id> endpoint. """
+
     def get(self, departure_id):
         return dd.rest_of_the_route(departure_id)
 
