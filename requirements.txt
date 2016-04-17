@@ -3,6 +3,6 @@ flask_restful_url_generator==0.0.4
 Flask-RESTful==0.3.5
 Flask==0.10.1
 redis==2.10.5
-suds==0.4
+suds-py3==1.3.1.0
 Flask-Cors==2.1.2
 

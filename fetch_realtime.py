@@ -5,6 +5,7 @@ import json
 import redis
 import time
 import socket
+import logging
 
 
 class Fetcher(object):
@@ -12,11 +13,13 @@ class Fetcher(object):
     def __init__(self):
         self.dd = DepartureData()
         self.redis = redis.StrictRedis()
-
-    @classmethod
-    def log(cls, message, **kwargs):
-        formatted_message = message.format(**kwargs)
-        print "{timestamp}: {message}".format(message=formatted_message, timestamp=datetime.datetime.now())
+        self.logger = logging.getLogger("fetch-hsl-realtime")
+        self.logger.setLevel(logging.INFO)
+        format_string = "%(asctime)s - %(levelname)s - %(message)s"
+        formatter = logging.Formatter(format_string)
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
 
     def map_lines(self, line):
         if line in LINE_MAPS:
@@ -40,7 +43,7 @@ class Fetcher(object):
             try:
                 departures = self.dd.get_schedules(stop_id, settings)
             except socket.timeout as err:
-                self.log("fetching departures for {stop_id} failed with timeout", stop_id=stop_id)
+                self.logger.info("Fetching departures for %s failed with timeout", stop_id)
                 raise err
 
             for departure in departures:
@@ -67,7 +70,7 @@ class Fetcher(object):
         try:
             all_departures = self.fetch()
         except socket.timeout:
-            self.log("not all departure fetches succeeded - skip publishing updates.")
+            self.logger.info("Not all departure fetches succeeded - skip publishing updates.")
             return None
         dumped = json.dumps(all_departures)
         self.redis.publish("home:broadcast:generic", json.dumps({"key": "public-transportation", "content": all_departures}))
@@ -76,16 +79,16 @@ class Fetcher(object):
 
     def loop(self):
         while True:
-            self.log("starting")
+            self.logger.info("Starting")
             run_started = time.time()
             self.run()
             run_finished = time.time()
             run_time = run_finished - run_started
-            self.log("finished in {run_time}s", run_time=run_time)
+            self.logger.info("Finished in %ss", run_time)
             if FETCHER_INTERVAL is None:
                 return
             sleep_time = max(FETCHER_INTERVAL / 2, FETCHER_INTERVAL - run_time)
-            self.log("sleeping {sleep_time}s", sleep_time=sleep_time)
+            self.logger.info("Sleeping for %ss", sleep_time)
             time.sleep(sleep_time)
 
 
