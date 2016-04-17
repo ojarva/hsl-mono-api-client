@@ -4,6 +4,7 @@ import cachetools
 import datetime
 import pprint
 import suds
+import pytz
 
 
 class DepartureData(object):
@@ -12,13 +13,12 @@ class DepartureData(object):
 
     def __init__(self):
         self.client = suds.client.Client("http://omatlahdot.hkl.fi/interfaces/kamo?wsdl")
+        self.timezone = pytz.timezone("Europe/Helsinki")
 
-    @classmethod
-    def convert_list(cls, item_list, original_timestamp):
-        return [cls.convert_item(item, original_timestamp) for item in item_list]
+    def convert_list(self, item_list, original_timestamp):
+        return [self.convert_item(item, original_timestamp) for item in item_list]
 
-    @classmethod
-    def convert_time(cls, value, original_timestamp):
+    def convert_time(self, value, original_timestamp):
         if value is None:
             return None
         parsed = datetime.datetime.strptime(value, "%H:%M:%S")
@@ -26,14 +26,14 @@ class DepartureData(object):
         time_diff = combined - original_timestamp
         if time_diff < -datetime.timedelta(hours=10):
             combined += datetime.timedelta(days=1)
-        return combined.isoformat()
 
-    @classmethod
-    def convert_item(cls, item, original_timestamp):
+        return self.timezone.localize(combined).isoformat()
+
+    def convert_item(self, item, original_timestamp):
         data = {}
         for k, val in item:
             if k in ("time", "rtime"):
-                val = cls.convert_time(val, original_timestamp)
+                val = self.convert_time(val, original_timestamp)
             if isinstance(val, suds.sax.text.Text):
                 data[k] = val.encode("utf-8")
             else:
