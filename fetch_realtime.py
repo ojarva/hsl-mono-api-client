@@ -1,3 +1,5 @@
+# pylint:disable=line-too-long
+
 """HSL realtime fetcher
 
 Usage:
@@ -12,10 +14,8 @@ Options:
     --redis_host=<hostname>      Hostname for redis server [default: localhost]
     --redis_db=<db number>       Redis database [default: 0]
     --redis_password=<password>  Password for redis
-
 """
 
-import datetime
 import imp
 import json
 import logging
@@ -24,9 +24,9 @@ import socket
 import sys
 import time
 
-from departures import DepartureData
 import docopt
 import redis
+from departures import DepartureData
 
 
 class Fetcher(object):
@@ -34,7 +34,7 @@ class Fetcher(object):
     def __init__(self, config, **kwargs):
         self.verbose = kwargs.get("verbose", False)
         self.config = config
-        self.dd = DepartureData()
+        self.departure_data = DepartureData()
         redis_args = {
             "host": kwargs.get("redis_host", "localhost"),
             "port": int(kwargs.get("redis_port", 6379)),
@@ -49,9 +49,9 @@ class Fetcher(object):
             self.logger.setLevel(logging.INFO)
         format_string = "%(asctime)s - %(levelname)s - %(message)s"
         formatter = logging.Formatter(format_string)
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
         self.check_config(config)
 
     def check_config(self, config):
@@ -76,7 +76,7 @@ class Fetcher(object):
             return self.config.LINE_MAPS[line]
         return line
 
-    def get_line_details(self, line):
+    def _get_line_details(self, line):
         if line in self.config.LINE_DETAILS:
             data = self.config.LINE_DETAILS[line]
         else:
@@ -87,12 +87,13 @@ class Fetcher(object):
         return data
 
     def fetch(self):
+        """ Fetch all configured departures but does not update redis. """
         all_departures = []
         lines = {}
         for stop_id, settings in self.config.STOPS.items():
             self.logger.debug("Fetching departures for stop %s: %s", stop_id, settings)
             try:
-                departures = self.dd.get_schedules(stop_id, settings)
+                departures = self.departure_data.get_schedules(stop_id, settings)
             except socket.timeout as err:
                 self.logger.info("Fetching departures for %s failed with timeout", stop_id)
                 raise err
@@ -104,7 +105,7 @@ class Fetcher(object):
                     continue
                 line = self._map_lines(line)
                 if line not in lines:
-                    lines[line] = self.get_line_details(line)
+                    lines[line] = self._get_line_details(line)
                 if departure["rtime"] is not None:
                     data = {"timestamp": departure["rtime"], "realtime": True}
                 else:
@@ -112,13 +113,14 @@ class Fetcher(object):
                 data["departure_id"] = departure["id"]
                 lines[line]["departures"].append(data)
 
-        for k, v in lines.items():
-            v["departures"] = sorted(v["departures"], key=lambda k: k["timestamp"])
-            all_departures.append(v)
-        all_departures = sorted(all_departures, key=lambda k: k["line"])
+        for key, value in lines.items():  # pylint:disable=unused-variable
+            value["departures"] = sorted(value["departures"], key=lambda key: key["timestamp"])
+            all_departures.append(value)
+        all_departures = sorted(all_departures, key=lambda key: key["line"])
         return all_departures
 
     def run(self):
+        """ Fetch all configured departures once and publish to redis. """
         try:
             all_departures = self.fetch()
         except socket.timeout:
@@ -138,6 +140,7 @@ class Fetcher(object):
         return all_departures
 
     def loop(self):
+        """ Fetch all configured departures and publish to redis. Loop forever, and sleep FETCHER_INTERVAL seconds between each loop. """
         while True:
             self.logger.info("Starting")
             run_started = time.time()
@@ -157,7 +160,7 @@ class Fetcher(object):
             time.sleep(sleep_time)
 
 
-def main():
+def main():  # pylint:disable=missing-docstring
     arguments = docopt.docopt(__doc__, version='HSL realtime fetcher 1.0')
     config = imp.load_source("config", arguments["--config"])
     fetcher = Fetcher(config, debug=arguments.get("--debug"), verbose=arguments.get("--verbose"), redis_port=arguments.get("--redis_port"), redis_host=arguments.get("--redis_host"), redis_db=arguments.get("--redis_db"), redis_password=arguments.get("--redis_password"))
