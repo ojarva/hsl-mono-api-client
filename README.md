@@ -1,14 +1,21 @@
-# Client for HSL realtime data
+Client for HSL realtime data
+============================
+
+This is only compatible with Python2, as `suds` does not support Python3. `suds-py3` fork seems to be broken.
+
+Usage:
 
 ```
+virtualenv env
+source env/bin/activate
 pip install -r requirements.txt
-PORT=5005 python service.py # start webserver on port 5005
-curl http://localhost:5005/ # output JSON describing the API
-python fetch_realtime.py # fetches and publishes departures information to redis pubsub
+PORT=5005 python service.py &  # starts webserver on port 5005
+curl http://localhost:5005/  # outputs JSON describing the API
+python fetch_realtime.py -h  # prints out usage
+python fetch_realtime.py single-run --config=config.py.example  # fetches and publishes departures information to redis pubsub
 ```
 
-Edit `local_settings.py` with your own lines and stops. For stop numbers, 
-[this](http://aikataulut.reittiopas.fi/pysakit/en/) is useful. Search using 
-"Stops", open stop information and copy ID from the URL (something like 1121601), 
-or from the bottom of the page ("Stop ID:"). Stop number displayed next to stop 
-name (for example, 0017) is not the ID you need.
+Settings
+--------
+
+Copy `config.py.example` to `config.py` and edit whatever lines, stops and settings you need. See `config.py.example` for detailed documentation and different options.
