@@ -7,4 +7,4 @@ Flask==1.0
 hiredis==0.2.0
 pytz>=2016.4
 redis==2.10.5
-suds==0.4
+suds==1.0.0
