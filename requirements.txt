@@ -3,7 +3,7 @@ docopt==0.6.2
 flask_restful_url_generator==0.0.4
 Flask-Cors==3.0.9
 Flask-RESTful==0.3.5
-Flask==1.0
+Flask==2.3.2
 hiredis==0.2.0
 pytz>=2016.4
 redis==4.5.3
